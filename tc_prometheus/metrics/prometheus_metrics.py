@@ -34,8 +34,11 @@ class Metrics(BaseMetrics):
     def incr(self, metricname, value=1):
         name, labels = self.__data(metricname)
 
+        if len(labels) == 0:
+            return
+
         if name not in Metrics.counters:
-            Metrics.counters[name] = Counter(name, name, labels.keys())
+            Metrics.counters[name] = Counter(name, name, list(labels.keys()))
 
         counter = Metrics.counters[name]
 
@@ -47,8 +50,11 @@ class Metrics(BaseMetrics):
     def timing(self, metricname, value):
         name, labels = self.__data(metricname)
 
+        if len(labels) == 0:
+            return
+
         if name not in Metrics.summaries:
-            Metrics.summaries[name] = Summary(name, name, labels.keys())
+            Metrics.summaries[name] = Summary(name, name, list(labels.keys()))
 
         summary = Metrics.summaries[name]
 
@@ -89,7 +95,7 @@ class Metrics(BaseMetrics):
         return labels
 
     def __basename(self, metricname):
-        for mapped in self.mapping.keys():
+        for mapped in list(self.mapping.keys()):
             if metricname.startswith(mapped + "."):
                 metricname = mapped
         return metricname
